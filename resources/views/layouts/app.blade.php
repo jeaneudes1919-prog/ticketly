@@ -33,7 +33,7 @@
     <div x-show="side" x-cloak x-transition.opacity @click="side = false" class="fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-sm lg:hidden"></div>
 
     <aside class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-slate-200 bg-white transition-[width,transform] duration-300 dark:border-slate-800 dark:bg-slate-900 lg:translate-x-0"
-           :class="collapsed ? 'lg:w-20' : 'lg:w-64'">
+           :class="[side ? '!translate-x-0' : '', collapsed ? 'lg:w-20' : 'lg:w-64']">
         <div class="flex h-16 items-center gap-2 px-3">
             <a href="/" class="flex min-w-0 items-center gap-2.5 px-2 font-display text-xl font-bold">
                 <span class="brand-gradient grid h-9 w-9 shrink-0 place-items-center rounded-xl text-white shadow-lg shadow-blue-600/20"><x-icon n="ticket" class="h-5 w-5"/></span>
