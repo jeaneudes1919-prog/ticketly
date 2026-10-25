@@ -1,23 +1,23 @@
 @extends('layouts.app')
 @section('title', 'Tableau de bord')
 @section('content')
-<div class="flex flex-wrap items-end justify-between gap-3"><div><h1 class="font-display text-3xl font-bold">Tableau de bord</h1><p class="text-slate-500">Vue d'ensemble de l'activité du support.</p></div><a href="{{ route('tickets.index', ['view' => 'late']) }}" class="btn-ghost">Voir les tickets en retard</a></div>
-<div class="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
+<div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><h1 class="font-display text-2xl font-bold sm:text-3xl">Tableau de bord</h1><p class="text-slate-500">Vue d'ensemble de l'activité du support.</p></div><a href="{{ route('tickets.index', ['view' => 'late']) }}" class="btn-ghost w-full sm:w-auto">Voir les tickets en retard</a></div>
+<div class="mt-5 grid grid-cols-2 gap-3 sm:mt-6 sm:gap-4 lg:grid-cols-3 xl:grid-cols-6">
     <x-stat label="Ouverts" :value="$kpis['open']" :i="0"/><x-stat label="Non assignés" :value="$kpis['unassigned']" tone="amber" :i="1"/><x-stat label="SLA dépassé" :value="$kpis['late']" tone="red" :i="2"/>
     <x-stat label="Résolus aujourd'hui" :value="$kpis['resolved_today']" tone="green" :i="3"/><x-stat label="1re réponse (min)" :value="$kpis['avg_first_response']" tone="violet" :i="4"/><x-stat label="Satisfaction /5" :value="$kpis['satisfaction']" tone="amber" :decimals="1" :i="5"/>
 </div>
-<div class="mt-6 grid gap-6 xl:grid-cols-3">
-    <div class="card p-5 xl:col-span-2"><h2 class="font-display text-lg font-bold">Tickets créés et résolus (30 jours)</h2><div class="relative mt-4 h-64 sm:h-72"><canvas id="cLine"></canvas></div></div>
-    <div class="card p-5"><h2 class="font-display text-lg font-bold">Répartition par statut</h2><div class="relative mx-auto mt-4 h-64 max-w-xs"><canvas id="cStatus"></canvas></div></div>
-    <div class="card p-5"><h2 class="font-display text-lg font-bold">Tickets ouverts par priorité</h2><div class="relative mt-4 h-56"><canvas id="cPrio"></canvas></div></div>
-    <div class="card p-5"><h2 class="font-display text-lg font-bold">Par catégorie</h2><div class="relative mt-4 h-56"><canvas id="cCat"></canvas></div></div>
-    <div class="card p-5"><h2 class="font-display text-lg font-bold">Classement des agents</h2>
-        <ul class="mt-4 space-y-3">@foreach ($leaders as $i => $l)<li class="flex items-center gap-3"><span class="w-5 text-center font-display font-bold text-slate-400">{{ $i + 1 }}</span><span class="grid h-9 w-9 place-items-center rounded-full text-sm font-bold text-white" style="background:{{ $l['color'] }}">{{ mb_substr($l['name'], 0, 1) }}</span><div class="min-w-0 flex-1"><p class="truncate text-sm font-semibold">{{ $l['name'] }}</p><p class="text-xs text-slate-500">{{ $l['open'] }} en cours</p></div><b class="text-emerald-600">{{ $l['resolved'] }}</b></li>@endforeach</ul><p class="mt-3 text-xs text-slate-400">Tickets résolus sur 30 jours</p></div>
+<div class="mt-5 grid grid-cols-1 gap-4 sm:mt-6 sm:gap-6 xl:grid-cols-3">
+    <div class="card p-4 sm:p-5 xl:col-span-2"><h2 class="font-display text-base font-bold sm:text-lg">Tickets créés et résolus (30 jours)</h2><div class="relative mt-3 h-56 sm:mt-4 sm:h-72"><canvas id="cLine"></canvas></div></div>
+    <div class="card p-4 sm:p-5"><h2 class="font-display text-base font-bold sm:text-lg">Répartition par statut</h2><div class="relative mx-auto mt-3 h-56 max-w-xs sm:mt-4 sm:h-64"><canvas id="cStatus"></canvas></div></div>
+    <div class="card p-4 sm:p-5"><h2 class="font-display text-base font-bold sm:text-lg">Tickets ouverts par priorité</h2><div class="relative mt-3 h-52 sm:mt-4 sm:h-56"><canvas id="cPrio"></canvas></div></div>
+    <div class="card p-4 sm:p-5"><h2 class="font-display text-base font-bold sm:text-lg">Par catégorie</h2><div class="relative mt-3 h-52 sm:mt-4 sm:h-56"><canvas id="cCat"></canvas></div></div>
+    <div class="card p-4 sm:p-5"><h2 class="font-display text-base font-bold sm:text-lg">Classement des agents</h2>
+        <ul class="mt-3 space-y-2.5 sm:mt-4 sm:space-y-3">@foreach ($leaders as $i => $l)<li class="flex items-center gap-3"><span class="w-5 text-center font-display font-bold text-slate-400">{{ $i + 1 }}</span><span class="grid h-8 w-8 place-items-center rounded-full text-sm font-bold text-white sm:h-9 sm:w-9" style="background:{{ $l['color'] }}">{{ mb_substr($l['name'], 0, 1) }}</span><div class="min-w-0 flex-1"><p class="truncate text-sm font-semibold">{{ $l['name'] }}</p><p class="text-xs text-slate-500">{{ $l['open'] }} en cours</p></div><b class="text-emerald-600">{{ $l['resolved'] }}</b></li>@endforeach</ul><p class="mt-3 text-xs text-slate-400">Tickets résolus sur 30 jours</p></div>
 </div>
-<div class="card mt-6 overflow-hidden"><div class="flex items-center justify-between p-5"><h2 class="font-display text-lg font-bold">À traiter en premier</h2><a href="{{ route('tickets.index') }}" class="text-sm font-semibold text-blue-600">Tout voir</a></div>
+<div class="card mt-5 overflow-hidden sm:mt-6"><div class="flex items-center justify-between p-4 sm:p-5"><h2 class="font-display text-base font-bold sm:text-lg">À traiter en premier</h2><a href="{{ route('tickets.index') }}" class="text-sm font-semibold text-blue-600">Tout voir</a></div>
     <div class="divide-y divide-slate-100 dark:divide-slate-800">
         @forelse ($urgent as $t)
-            <a href="{{ route('tickets.show', $t) }}" class="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 transition hover:bg-slate-50 dark:hover:bg-slate-800/40"><div class="min-w-0"><p class="text-xs font-semibold text-blue-600">{{ $t->reference }} · {{ $t->customer->name }}</p><p class="truncate font-medium">{{ $t->subject }}</p></div><div class="flex items-center gap-2"><span class="badge {{ $t->priority->color() }}">{{ $t->priority->label() }}</span><x-sla :t="$t"/></div></a>
+            <a href="{{ route('tickets.show', $t) }}" class="flex flex-col gap-2 px-4 py-3 transition hover:bg-slate-50 dark:hover:bg-slate-800/40 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-3 sm:px-5 sm:py-3.5"><div class="min-w-0"><p class="text-xs font-semibold text-blue-600">{{ $t->reference }} · {{ $t->customer->name }}</p><p class="truncate font-medium">{{ $t->subject }}</p></div><div class="flex flex-wrap items-center gap-2"><span class="badge {{ $t->priority->color() }}">{{ $t->priority->label() }}</span><x-sla :t="$t"/></div></a>
         @empty
             <p class="px-5 pb-8 text-center text-slate-500">Aucun ticket ouvert. Beau travail ! 🎉</p>
         @endforelse

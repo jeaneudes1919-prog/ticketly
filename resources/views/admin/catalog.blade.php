@@ -1,10 +1,10 @@
 @extends('layouts.app')
 @section('title', 'Catalogue')
 @section('content')
-<h1 class="font-display text-3xl font-bold">Catalogue</h1><p class="text-slate-500">Catégories, départements et étiquettes utilisés pour classer les tickets.</p>
-<div class="mt-6 grid gap-6 lg:grid-cols-3">
+<h1 class="font-display text-2xl sm:text-3xl font-bold">Catalogue</h1><p class="text-slate-500">Catégories, départements et étiquettes utilisés pour classer les tickets.</p>
+<div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6">
 @foreach ([['categories', 'Catégories', $categories, true], ['departments', 'Départements', $departments, false], ['tags', 'Étiquettes', $tags, true]] as [$type, $title, $items, $color])
-    <section class="card p-5" x-data="{ edit: null }">
+    <section class="card p-4 sm:p-5" x-data="{ edit: null }">
         <h2 class="font-display text-lg font-bold">{{ $title }}</h2>
         <ul class="mt-4 space-y-2">
             @foreach ($items as $it)

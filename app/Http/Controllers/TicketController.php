@@ -77,14 +77,20 @@ class TicketController extends Controller
             'resolved' => Ticket::visibleTo($user)->whereIn('status', [TicketStatus::Resolved->value, TicketStatus::Closed->value])->count(),
         ];
 
-        return view('tickets.index', [
+        $data = [
             'tickets' => $query->paginate(12)->withQueryString(),
             'view' => $view,
             'counts' => $counts,
             'categories' => Category::orderBy('name')->get(),
             'agents' => $this->agents(),
             'tags' => Tag::orderBy('name')->get(),
-        ]);
+        ];
+
+        if ($request->header('X-Ticketly-Partial') === 'results') {
+            return response()->view('tickets._results', $data);
+        }
+
+        return view('tickets.index', $data);
     }
 
     public function show(Ticket $ticket)

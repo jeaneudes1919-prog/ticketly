@@ -15,7 +15,7 @@
     @endif
     <div class="mt-6">@include('partials.thread', ['ticket' => $ticket->setRelation('customer', $ticket->customer ?? auth()->user())])</div>
     @if ($ticket->status !== \App\Enums\TicketStatus::Closed)
-        <form method="POST" action="{{ route('portal.reply', $ticket) }}" enctype="multipart/form-data" class="card mt-6 space-y-4 p-5">
+        <form method="POST" action="{{ route('portal.reply', $ticket) }}" enctype="multipart/form-data" class="card mt-6 space-y-4 p-4 sm:p-5">
             @csrf
             <label class="label" for="body">Votre réponse</label>
             <textarea id="body" name="body" rows="4" class="input" placeholder="Écrivez votre message…" required>{{ old('body') }}</textarea>@error('body')<p class="text-sm text-red-600">{{ $message }}</p>@enderror
@@ -35,7 +35,7 @@
         @endif
     </div>
     @if ($ticket->isFinal())
-        <div class="card mt-6 p-5" x-data="{ s: {{ $ticket->satisfaction ?? 0 }}, hover: 0 }">
+        <div class="card mt-6 p-4 sm:p-5" x-data="{ s: {{ $ticket->satisfaction ?? 0 }}, hover: 0 }">
             <h2 class="font-display text-lg font-bold">Comment s'est passé le traitement ?</h2>
             @if ($ticket->satisfaction)
                 <p class="mt-1 text-sm text-slate-500">Merci ! Vous avez donné {{ $ticket->satisfaction }}/5.</p>

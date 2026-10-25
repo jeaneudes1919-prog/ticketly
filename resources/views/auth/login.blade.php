@@ -2,7 +2,7 @@
 @section('title', 'Connexion')
 @section('content')
 <div x-data="{ email: @js(old('email', '')), pass: '' }" class="fade-up">
-    <h1 class="font-display text-4xl font-bold">Bon retour !</h1>
+    <h1 class="font-display text-3xl sm:text-4xl font-bold">Bon retour !</h1>
     <p class="mt-2 text-slate-500">Connectez-vous pour accéder à votre espace.</p>
     <form method="POST" action="{{ route('login') }}" class="mt-8 space-y-5">
         @csrf

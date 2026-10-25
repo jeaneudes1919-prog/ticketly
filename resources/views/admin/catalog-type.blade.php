@@ -4,17 +4,17 @@
 <div class="flex flex-wrap items-end justify-between gap-3">
     <div>
         <p class="text-xs font-semibold uppercase tracking-[.2em] text-blue-600">Administration</p>
-        <h1 class="mt-1 font-display text-3xl font-bold">{{ $title }}</h1>
+        <h1 class="mt-1 font-display text-2xl sm:text-3xl font-bold">{{ $title }}</h1>
         <p class="text-slate-500">Gérez les éléments utilisés pour classer et router les tickets.</p>
     </div>
     <a href="{{ route('admin.catalog') }}" class="btn-ghost">Vue d’ensemble</a>
 </div>
 
-<div class="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
+<div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_360px] lg:gap-6">
     <div class="card overflow-hidden">
         <ul class="divide-y divide-slate-100 dark:divide-slate-800">
             @forelse ($items as $item)
-                <li class="p-4" x-data="{ edit: false }">
+                <li class="p-3.5 sm:p-4" x-data="{ edit: false }">
                     <div class="flex items-center gap-3" x-show="! edit">
                         @if ($color)
                             <span class="h-3 w-3 shrink-0 rounded-full ring-4 ring-slate-100 dark:ring-slate-800" style="background:{{ $item->color }}"></span>
@@ -58,7 +58,7 @@
         </ul>
     </div>
 
-    <form method="POST" action="{{ route('admin.catalog.save', $type) }}" class="card h-fit space-y-4 p-5">
+    <form method="POST" action="{{ route('admin.catalog.save', $type) }}" class="card h-fit space-y-4 p-4 sm:p-5">
         @csrf
         <div>
             <h2 class="font-display text-lg font-bold">Ajouter</h2>

@@ -155,4 +155,20 @@ class TicketlyTest extends TestCase
 
         $this->assertTrue(Hash::check('nouveau-mot-de-passe', $user->refresh()->password));
     }
+
+    public function test_ticket_index_partial_results_support_live_search(): void
+    {
+        $agent = $this->user(Role::Agent);
+        $customer = $this->user(Role::Customer);
+        $this->ticket($customer, ['subject' => 'Problème de réseau']);
+        $this->ticket($customer, ['subject' => 'Demande de facture']);
+
+        $this->actingAs($agent)
+            ->withHeader('X-Ticketly-Partial', 'results')
+            ->get(route('tickets.index', ['q' => 'réseau']))
+            ->assertOk()
+            ->assertSee('Problème de réseau')
+            ->assertDontSee('Demande de facture')
+            ->assertDontSee('<!DOCTYPE html>', false);
+    }
 }

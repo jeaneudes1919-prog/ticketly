@@ -3,7 +3,7 @@
 @section('content')
 <div class="fade-up">
     <a href="{{ route('login') }}" class="text-sm text-slate-500 hover:text-blue-600">← Retour à la connexion</a>
-    <h1 class="mt-4 font-display text-4xl font-bold">Mot de passe oublié ?</h1>
+    <h1 class="mt-4 font-display text-3xl sm:text-4xl font-bold">Mot de passe oublié ?</h1>
     <p class="mt-2 text-slate-500">Indiquez votre adresse email : nous vous enverrons un lien pour choisir un nouveau mot de passe.</p>
     <form method="POST" action="{{ route('password.email') }}" class="mt-8 space-y-5">
         @csrf

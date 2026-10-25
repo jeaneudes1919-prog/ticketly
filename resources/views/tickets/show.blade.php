@@ -22,7 +22,7 @@
     </div>
 @endif
 
-<div class="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
+<div class="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[1fr_360px] lg:gap-6">
     <div class="min-w-0 space-y-6">
         @include('partials.thread', ['ticket' => $ticket])
 
@@ -70,7 +70,7 @@
     </div>
 
     <aside class="space-y-5">
-        <form method="POST" action="{{ route('tickets.update', $ticket) }}" class="card space-y-4 p-5">
+        <form method="POST" action="{{ route('tickets.update', $ticket) }}" class="card space-y-4 p-4 sm:p-5">
             @csrf @method('PATCH')
             <input type="hidden" name="tags_present" value="1">
             <h2 class="font-display text-lg font-bold">Propriétés</h2>
@@ -133,7 +133,7 @@
             <button class="btn-primary w-full">Enregistrer les modifications</button>
         </form>
 
-        <div class="card p-5">
+        <div class="card p-4 sm:p-5">
             <h2 class="font-display text-lg font-bold">Client</h2>
             <div class="mt-3 flex items-center gap-3">
                 <x-avatar :user="$ticket->customer" :size="11"/>
@@ -153,7 +153,7 @@
         </div>
 
         @if ($mergeTargets->isNotEmpty() && ! $ticket->isFinal())
-            <div class="card p-5">
+            <div class="card p-4 sm:p-5">
                 <h2 class="font-display text-lg font-bold">Fusionner ce ticket</h2>
                 <p class="mt-1 text-sm text-slate-500">Déplacez les réponses et pièces jointes vers un autre ticket ouvert du même client. Ce ticket sera fermé.</p>
                 <form method="POST" action="{{ route('tickets.merge', $ticket) }}" class="mt-3 space-y-3"
@@ -171,7 +171,7 @@
             </div>
         @endif
 
-        <div class="card p-5">
+        <div class="card p-4 sm:p-5">
             <h2 class="font-display text-lg font-bold">Activité</h2>
             <ol class="relative mt-4 space-y-4 border-l-2 border-slate-200 pl-5 dark:border-slate-700">
                 @php

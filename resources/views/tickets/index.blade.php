@@ -4,7 +4,7 @@
 <div class="flex flex-wrap items-center justify-between gap-3">
     <div>
         <p class="text-xs font-semibold uppercase tracking-[.2em] text-blue-600">Boîte de réception</p>
-        <h1 class="mt-1 font-display text-3xl font-bold">Tickets</h1>
+        <h1 class="mt-1 font-display text-2xl sm:text-3xl font-bold">Tickets</h1>
         <p class="text-slate-500">Triés par urgence et par échéance SLA.</p>
     </div>
     <div class="flex flex-wrap gap-2">
@@ -13,10 +13,12 @@
     </div>
 </div>
 
-<div class="mt-6 flex gap-2 overflow-x-auto pb-1">
+<div x-data="ticketInbox">
+<div class="mt-6 flex flex-wrap gap-2 pb-1" x-ref="quickViews">
     @foreach (['all' => 'Tous', 'mine' => 'Mes tickets', 'unassigned' => 'Non assignés', 'late' => 'En retard', 'resolved' => 'Résolus'] as $key => $label)
         <a href="{{ route('tickets.index', array_filter(['view' => $key, 'q' => request('q'), 'status' => request('status'), 'priority' => request('priority'), 'category_id' => request('category_id'), 'assignee_id' => request('assignee_id'), 'tag' => request('tag'), 'period' => request('period'), 'sort' => request('sort')])) }}"
-           class="flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition {{ $view === $key ? 'bg-slate-900 text-white shadow-lg dark:bg-white dark:text-slate-900' : 'bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800' }}">
+           data-view="{{ $key }}"
+           class="flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-semibold transition sm:gap-2 sm:px-4 sm:py-2 sm:text-sm {{ $view === $key ? 'bg-slate-900 text-white shadow-lg dark:bg-white dark:text-slate-900' : 'bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800' }}">
             {{ $label }}
             <span class="rounded-full bg-black/10 px-2 text-xs dark:bg-white/20">{{ $counts[$key] }}</span>
             @if ($key === 'late' && $counts[$key] > 0)<span class="h-2 w-2 animate-pulse rounded-full bg-red-400"></span>@endif
@@ -24,113 +26,86 @@
     @endforeach
 </div>
 
-<form method="GET" class="card mt-4 grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-9">
+<form method="GET" action="{{ route('tickets.index') }}" x-ref="filters" @submit.prevent="apply()" class="card mt-4 p-3 sm:p-4">
     <input type="hidden" name="view" value="{{ $view }}">
-    <input name="q" value="{{ request('q') }}" class="input xl:col-span-2" placeholder="Référence, sujet ou client">
-    <select name="status" class="input">
-        <option value="">Tous statuts</option>
-        @foreach (\App\Enums\TicketStatus::cases() as $status)
-            <option value="{{ $status->value }}" @selected(request('status') === $status->value)>{{ $status->label() }}</option>
-        @endforeach
-    </select>
-    <select name="priority" class="input">
-        <option value="">Toutes priorités</option>
-        @foreach (\App\Enums\TicketPriority::cases() as $priority)
-            <option value="{{ $priority->value }}" @selected(request('priority') === $priority->value)>{{ $priority->label() }}</option>
-        @endforeach
-    </select>
-    <select name="category_id" class="input">
-        <option value="">Toutes catégories</option>
-        @foreach ($categories as $category)
-            <option value="{{ $category->id }}" @selected(request('category_id') == $category->id)>{{ $category->name }}</option>
-        @endforeach
-    </select>
-    <select name="assignee_id" class="input">
-        <option value="">Tous les agents</option>
-        @foreach ($agents as $agent)
-            <option value="{{ $agent->id }}" @selected(request('assignee_id') == $agent->id)>{{ $agent->name }}</option>
-        @endforeach
-    </select>
-    <select name="tag" class="input">
-        <option value="">Toutes étiquettes</option>
-        @foreach ($tags as $tag)
-            <option value="{{ $tag->id }}" @selected(request('tag') == $tag->id)>{{ $tag->name }}</option>
-        @endforeach
-    </select>
-    <select name="period" class="input">
-        <option value="">Toute période</option>
-        <option value="7" @selected(request('period') === '7')>7 derniers jours</option>
-        <option value="30" @selected(request('period') === '30')>30 derniers jours</option>
-        <option value="90" @selected(request('period') === '90')>90 derniers jours</option>
-    </select>
-    <select name="sort" class="input">
-        <option value="">Tri : urgence</option>
-        <option value="recent" @selected(request('sort') === 'recent')>Tri : plus récents</option>
-        <option value="oldest" @selected(request('sort') === 'oldest')>Tri : plus anciens</option>
-    </select>
-    <div class="flex gap-2 sm:col-span-2 lg:col-span-4 xl:col-span-9">
-        <button class="btn-primary"><x-icon n="filter" class="h-4 w-4"/>Filtrer</button>
-        <a href="{{ route('tickets.index') }}" class="btn-ghost">Effacer les filtres</a>
+    <div class="flex items-center gap-2">
+        <div class="relative min-w-0 flex-1">
+            <span class="pointer-events-none absolute left-3 top-2.5 text-slate-400"><x-icon n="search" class="h-5 w-5"/></span>
+            <input name="q" value="{{ request('q') }}" class="input !pl-10" placeholder="Rechercher…"
+                   aria-label="Rechercher un ticket" autocomplete="off" enterkeyhint="search" @input="onSearch()">
+        </div>
+        <button type="button" class="btn-ghost shrink-0 lg:hidden" @click="filtersOpen = ! filtersOpen"
+                :aria-expanded="filtersOpen" aria-controls="ticket-filters">
+            <x-icon n="filter" class="h-4 w-4"/>Filtres
+            <span x-show="activeFilters > 0" x-cloak class="grid h-5 min-w-5 place-items-center rounded-full bg-blue-600 px-1 text-[10px] font-bold text-white" x-text="activeFilters"></span>
+        </button>
+    </div>
+
+    <div id="ticket-filters" x-show="filtersOpen || desktop" x-cloak x-transition.opacity
+         class="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3 xl:grid-cols-4">
+        <select name="status" class="input" @change="activeFilters = countActive(); apply()">
+            <option value="">Tous statuts</option>
+            @foreach (\App\Enums\TicketStatus::cases() as $status)
+                <option value="{{ $status->value }}" @selected(request('status') === $status->value)>{{ $status->label() }}</option>
+            @endforeach
+        </select>
+        <select name="priority" class="input" @change="activeFilters = countActive(); apply()">
+            <option value="">Toutes priorités</option>
+            @foreach (\App\Enums\TicketPriority::cases() as $priority)
+                <option value="{{ $priority->value }}" @selected(request('priority') === $priority->value)>{{ $priority->label() }}</option>
+            @endforeach
+        </select>
+        <select name="category_id" class="input" @change="activeFilters = countActive(); apply()">
+            <option value="">Toutes catégories</option>
+            @foreach ($categories as $category)
+                <option value="{{ $category->id }}" @selected(request('category_id') == $category->id)>{{ $category->name }}</option>
+            @endforeach
+        </select>
+        <select name="assignee_id" class="input" @change="activeFilters = countActive(); apply()">
+            <option value="">Tous les agents</option>
+            @foreach ($agents as $agent)
+                <option value="{{ $agent->id }}" @selected(request('assignee_id') == $agent->id)>{{ $agent->name }}</option>
+            @endforeach
+        </select>
+        <select name="tag" class="input" @change="activeFilters = countActive(); apply()">
+            <option value="">Toutes étiquettes</option>
+            @foreach ($tags as $tag)
+                <option value="{{ $tag->id }}" @selected(request('tag') == $tag->id)>{{ $tag->name }}</option>
+            @endforeach
+        </select>
+        <select name="period" class="input" @change="activeFilters = countActive(); apply()">
+            <option value="">Toute période</option>
+            <option value="7" @selected(request('period') === '7')>7 derniers jours</option>
+            <option value="30" @selected(request('period') === '30')>30 derniers jours</option>
+            <option value="90" @selected(request('period') === '90')>90 derniers jours</option>
+        </select>
+        <select name="sort" class="input" @change="apply()">
+            <option value="">Tri : urgence</option>
+            <option value="recent" @selected(request('sort') === 'recent')>Tri : plus récents</option>
+            <option value="oldest" @selected(request('sort') === 'oldest')>Tri : plus anciens</option>
+        </select>
+    </div>
+
+    <div x-show="filtersOpen || desktop" x-cloak class="mt-3 flex flex-wrap items-center gap-2">
+        <button type="button" class="btn-primary lg:hidden" @click="showResults()">
+            <x-icon n="filter" class="h-4 w-4"/>Voir les résultats
+        </button>
+        <button type="button" class="btn-ghost" @click="reset()">Effacer les filtres</button>
+        <span x-show="loading" x-cloak class="inline-flex items-center gap-2 text-xs font-semibold text-slate-500">
+            <span class="h-3.5 w-3.5 animate-spin rounded-full border-2 border-slate-300 border-t-blue-600"></span>Mise à jour…
+        </span>
+        <span class="ml-auto hidden text-xs text-slate-400 lg:block">Les filtres s’appliquent automatiquement.</span>
     </div>
 </form>
 
-<form method="POST" action="{{ route('tickets.bulk') }}" x-data="{ sel: [], action: 'assign' }" class="mt-4">
-    @csrf
-    <div x-show="sel.length" x-cloak x-transition class="card mb-3 flex flex-wrap items-center gap-3 border-blue-300 bg-blue-50 p-3 dark:border-blue-500/40 dark:bg-blue-500/10">
-        <b class="text-sm" x-text="sel.length + ' sélectionné(s)'"></b>
-        <select name="action" x-model="action" class="input !w-auto">
-            <option value="assign">Assigner à…</option>
-            <option value="status">Changer le statut…</option>
-            <option value="close">Fermer les tickets</option>
-        </select>
-        <select x-show="action === 'assign'" :name="action === 'assign' ? 'value' : ''" class="input !w-auto">
-            @foreach ($agents as $agent)<option value="{{ $agent->id }}">{{ $agent->name }}</option>@endforeach
-        </select>
-        <select x-show="action === 'status'" :name="action === 'status' ? 'value' : ''" class="input !w-auto">
-            @foreach (\App\Enums\TicketStatus::cases() as $status)<option value="{{ $status->value }}">{{ $status->label() }}</option>@endforeach
-        </select>
-        <span x-show="action === 'close'" class="text-sm text-slate-500">Les tickets seront marqués comme fermés.</span>
-        <button class="btn-primary">Appliquer</button>
+<div class="relative mt-4">
+    <div x-show="loading" x-cloak class="pointer-events-none absolute -top-2 right-0 z-10 flex items-center gap-2 rounded-full border border-slate-200 bg-white/95 px-3 py-1 text-xs font-semibold text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900/95">
+        <span class="h-3.5 w-3.5 animate-spin rounded-full border-2 border-slate-300 border-t-blue-600"></span>Mise à jour…
     </div>
-
-    <div class="space-y-3 md:card md:overflow-hidden md:space-y-0">
-        <table class="w-full md:divide-y md:divide-slate-100 dark:md:divide-slate-800">
-            <thead class="hidden bg-slate-50 md:table-header-group dark:bg-slate-800/50">
-                <tr><th class="th w-10"></th><th class="th">Ticket</th><th class="th">Client</th><th class="th">Priorité</th><th class="th">Statut</th><th class="th">Assigné</th><th class="th">SLA</th></tr>
-            </thead>
-            <tbody class="block md:table-row-group md:divide-y md:divide-slate-100 dark:md:divide-slate-800">
-            @forelse ($tickets as $index => $ticket)
-                <tr class="fade-up card mb-3 block p-4 transition hover:bg-slate-50 md:mb-0 md:table-row md:rounded-none md:border-0 md:p-0 md:shadow-none dark:hover:bg-slate-800/40" style="--i:{{ $index }}">
-                    <td class="block md:table-cell md:px-4 md:py-3"><input type="checkbox" name="ids[]" value="{{ $ticket->id }}" x-model="sel" class="rounded border-slate-300 text-blue-600" aria-label="Sélectionner {{ $ticket->reference }}"></td>
-                    <td class="block md:table-cell md:px-4 md:py-3">
-                        <a href="{{ route('tickets.show', $ticket) }}" class="block">
-                            <span class="text-xs font-semibold text-blue-600">{{ $ticket->reference }}</span>
-                            <span class="block font-semibold hover:text-blue-600">{{ $ticket->subject }}</span>
-                            <span class="mt-1 flex flex-wrap gap-1">@foreach ($ticket->tags as $tag)<span class="badge text-white" style="background:{{ $tag->color }}">{{ $tag->name }}</span>@endforeach</span>
-                        </a>
-                    </td>
-                    <td class="block text-sm md:table-cell md:px-4 md:py-3"><span class="text-slate-500 md:hidden">Client : </span>{{ $ticket->customer->name }}</td>
-                    <td class="inline-block pr-2 md:table-cell md:px-4 md:py-3"><span class="badge {{ $ticket->priority->color() }}">{{ $ticket->priority->label() }}</span></td>
-                    <td class="inline-block md:table-cell md:px-4 md:py-3"><span class="badge {{ $ticket->status->color() }}">{{ $ticket->status->label() }}</span></td>
-                    <td class="block text-sm md:table-cell md:px-4 md:py-3">
-                        @if ($ticket->assignee)
-                            <span class="flex items-center gap-2"><x-avatar :user="$ticket->assignee" :size="6"/>{{ $ticket->assignee->name }}</span>
-                        @else
-                            <span class="text-slate-400">Non assigné</span>
-                        @endif
-                    </td>
-                    <td class="block pt-2 md:table-cell md:px-4 md:py-3 md:pt-3"><x-sla :t="$ticket"/></td>
-                </tr>
-            @empty
-                <tr class="block md:table-row"><td colspan="7" class="block px-6 py-16 text-center md:table-cell">
-                    <x-empty-state icon="inbox" title="Aucun ticket ne correspond" text="Modifiez vos filtres pour élargir la recherche.">
-                        <a href="{{ route('tickets.index') }}" class="btn-ghost">Réinitialiser les filtres</a>
-                    </x-empty-state>
-                </td></tr>
-            @endforelse
-            </tbody>
-        </table>
+    <div x-ref="results" @click="handleResultClick($event)" :aria-busy="loading" :class="loading && 'opacity-60'"
+         class="transition-opacity duration-200" aria-live="polite">
+        @include('tickets._results')
     </div>
-</form>
-<div class="mt-6">{{ $tickets->links('components.pagination') }}</div>
+</div>
+</div>
 @endsection

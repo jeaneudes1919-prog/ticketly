@@ -83,10 +83,10 @@
         </div>
     </aside>
 
-    <div class="min-h-screen transition-[padding] duration-300" :class="collapsed ? 'lg:pl-20' : 'lg:pl-64'">
-        <header class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-slate-200 bg-white/80 px-4 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/80 sm:px-6">
+    <div class="min-h-screen min-w-0 transition-[padding] duration-300" :class="collapsed ? 'lg:pl-20' : 'lg:pl-64'">
+        <header class="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-slate-200 bg-white/80 px-3 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/80 sm:h-16 sm:gap-3 sm:px-6">
             <button class="btn-ghost !p-2 lg:hidden" @click="side = true" aria-label="Menu"><x-icon n="menu"/></button>
-            <form method="GET" action="{{ $u->isStaff() ? route('tickets.index') : route('portal.tickets') }}" class="relative max-w-md flex-1">
+            <form method="GET" action="{{ $u->isStaff() ? route('tickets.index') : route('portal.tickets') }}" class="relative hidden max-w-md flex-1 sm:block">
                 <span class="absolute left-3 top-2.5 text-slate-400"><x-icon n="search" class="h-5 w-5"/></span>
                 <input name="q" value="{{ request('q') }}" class="input !rounded-full !pl-10" placeholder="Rechercher un ticket…" aria-label="Rechercher">
             </form>
@@ -134,7 +134,7 @@
             </div>
         </header>
 
-        <main class="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">@yield('content')</main>
+        <main class="mx-auto min-w-0 max-w-7xl p-3 sm:p-6 lg:p-8">@yield('content')</main>
     </div>
     <x-toast/><x-confirm/>
     @stack('scripts')

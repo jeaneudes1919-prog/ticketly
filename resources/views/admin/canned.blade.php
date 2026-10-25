@@ -4,17 +4,17 @@
 <div class="flex flex-wrap items-end justify-between gap-3">
     <div>
         <p class="text-xs font-semibold uppercase tracking-[.2em] text-blue-600">Administration</p>
-        <h1 class="mt-1 font-display text-3xl font-bold">Réponses prédéfinies</h1>
+        <h1 class="mt-1 font-display text-2xl sm:text-3xl font-bold">Réponses prédéfinies</h1>
         <p class="text-slate-500">Des modèles réutilisables par les agents, avec un raccourci de saisie.</p>
     </div>
     <a href="{{ route('admin.sla') }}" class="btn-ghost"><x-icon n="clock" class="h-4 w-4"/>Politiques SLA</a>
 </div>
 
-<div class="mt-6 grid gap-6 xl:grid-cols-[1fr_400px]">
+<div class="mt-6 grid grid-cols-1 gap-4 xl:grid-cols-[1fr_400px] xl:gap-6">
     <div class="card overflow-hidden">
         <ul class="divide-y divide-slate-100 dark:divide-slate-800">
             @forelse ($canned as $response)
-                <li class="p-4" x-data="{ edit: false }">
+                <li class="p-3.5 sm:p-4" x-data="{ edit: false }">
                     <div class="flex items-start gap-3" x-show="! edit">
                         <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-300"><x-icon n="message" class="h-4 w-4"/></span>
                         <div class="min-w-0 flex-1">
@@ -41,7 +41,7 @@
         </ul>
     </div>
 
-    <form method="POST" action="{{ route('admin.canned.save') }}" class="card h-fit space-y-4 p-5">
+    <form method="POST" action="{{ route('admin.canned.save') }}" class="card h-fit space-y-4 p-4 sm:p-5">
         @csrf
         <div><h2 class="font-display text-lg font-bold">Nouvelle réponse</h2><p class="text-sm text-slate-500">Le raccourci est facultatif, par exemple <code class="rounded bg-slate-100 px-1 dark:bg-slate-800">/accuse</code>.</p></div>
         <div><label class="label" for="title">Titre</label><input id="title" name="title" class="input" placeholder="Ex. : Accusé de réception" required></div>
